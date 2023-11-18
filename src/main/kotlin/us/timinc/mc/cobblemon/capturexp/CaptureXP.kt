@@ -34,7 +34,7 @@ object CaptureXP : ModInitializer {
         val caughtBattleMonActor = battle.actors.find { it.uuid == event.pokemon.uuid }!!
         caughtBattleMonActor.pokemonList.forEach { caughtBattleMon ->
             caughtBattleMon.facedOpponents.forEach {opponent ->
-                val experience = Cobblemon.experienceCalculator.calculate(opponent, caughtBattleMon, 1.0)
+                val experience = Cobblemon.experienceCalculator.calculate(opponent, caughtBattleMon, captureXPConfig.multiplier)
                 if (experience > 0) {
                     opponent.actor.awardExperience(opponent, experience)
                 }
