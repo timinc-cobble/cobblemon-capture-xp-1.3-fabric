@@ -10,7 +10,6 @@ import me.shedaniel.autoconfig.AutoConfig
 import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer
 import net.fabricmc.api.ModInitializer
 import us.timinc.mc.cobblemon.capturexp.config.CaptureXPConfig
-import kotlin.math.exp
 
 object CaptureXP : ModInitializer {
     const val MOD_ID = "capture_xp"
@@ -18,11 +17,9 @@ object CaptureXP : ModInitializer {
 
     override fun onInitialize() {
         AutoConfig.register(
-            CaptureXPConfig::class.java,
-            ::JanksonConfigSerializer
+            CaptureXPConfig::class.java, ::JanksonConfigSerializer
         )
-        captureXPConfig = AutoConfig.getConfigHolder(CaptureXPConfig::class.java)
-            .config
+        captureXPConfig = AutoConfig.getConfigHolder(CaptureXPConfig::class.java).config
 
         CobblemonEvents.POKEMON_CAPTURED.subscribe { event ->
             if (event.player.isInBattle()) handleCaptureInBattle(event) else handleCaptureOutOfBattle(event)
@@ -33,8 +30,9 @@ object CaptureXP : ModInitializer {
         val battle = Cobblemon.battleRegistry.getBattleByParticipatingPlayer(event.player) ?: return
         val caughtBattleMonActor = battle.actors.find { it.uuid == event.pokemon.uuid }!!
         caughtBattleMonActor.pokemonList.forEach { caughtBattleMon ->
-            caughtBattleMon.facedOpponents.forEach {opponent ->
-                val experience = Cobblemon.experienceCalculator.calculate(opponent, caughtBattleMon, captureXPConfig.multiplier)
+            caughtBattleMon.facedOpponents.filter { opponent -> opponent.health > 0 }.forEach { opponent ->
+                val experience =
+                    Cobblemon.experienceCalculator.calculate(opponent, caughtBattleMon, captureXPConfig.multiplier)
                 if (experience > 0) {
                     opponent.actor.awardExperience(opponent, experience)
                 }
@@ -45,11 +43,9 @@ object CaptureXP : ModInitializer {
     private fun handleCaptureOutOfBattle(event: PokemonCapturedEvent) {
         val playerParty = Cobblemon.storage.getParty(event.player)
         val source = SidemodExperienceSource(MOD_ID)
-        val targetPokemon = playerParty.firstOrNull { it != event.pokemon } ?: return
+        val targetPokemon = playerParty.firstOrNull { it != event.pokemon && it.currentHealth > 0 } ?: return
         val experience = Cobblemon.experienceCalculator.calculate(
-            BattlePokemon.safeCopyOf(targetPokemon),
-            BattlePokemon.safeCopyOf(event.pokemon),
-            captureXPConfig.multiplier
+            BattlePokemon.safeCopyOf(targetPokemon), BattlePokemon.safeCopyOf(event.pokemon), captureXPConfig.multiplier
         )
         targetPokemon.addExperienceWithPlayer(event.player, source, experience)
     }
