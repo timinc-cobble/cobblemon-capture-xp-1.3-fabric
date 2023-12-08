@@ -29,8 +29,8 @@ object CaptureXP : ModInitializer {
 
     private fun handleCaptureInBattle(event: PokemonCapturedEvent) {
         val battle = Cobblemon.battleRegistry.getBattleByParticipatingPlayer(event.player) ?: return
-        val caughtBattleMonActor = battle.actors.find { it.uuid == event.pokemon.uuid }!!
-        val caughtBattleMon = caughtBattleMonActor.pokemonList.find { it.uuid == event.pokemon.uuid }!!
+        val caughtBattleMonActor = battle.actors.find { it.uuid == event.pokemon.uuid } ?: return
+        val caughtBattleMon = caughtBattleMonActor.pokemonList.find { it.uuid == event.pokemon.uuid } ?: return
 
         caughtBattleMonActor.getSide().getOppositeSide().actors.forEach { opponentActor ->
             opponentActor.pokemonList.filter {
