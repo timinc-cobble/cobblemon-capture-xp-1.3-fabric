@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "us.timinc.mc.cobblemon.capturexp"
-version = "1.3-fabric-1.0.3"
+version = "1.3-fabric-1.0.4"
 
 architectury {
     platformSetupLoomIde()
