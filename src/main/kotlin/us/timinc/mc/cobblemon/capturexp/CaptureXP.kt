@@ -8,20 +8,31 @@ import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
 import com.cobblemon.mod.common.util.isInBattle
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
+import us.timinc.mc.cobblemon.capturexp.command.Commands
 import us.timinc.mc.cobblemon.capturexp.config.CaptureXPConfig
 import us.timinc.mc.config.ConfigLoader
 
 object CaptureXP : ModInitializer {
     @Suppress("MemberVisibilityCanBePrivate")
     const val MOD_ID = "capture_xp"
+
     @Suppress("MemberVisibilityCanBePrivate")
     lateinit var captureXPConfig: CaptureXPConfig
 
     override fun onInitialize() {
-        captureXPConfig = ConfigLoader.loadConfig(MOD_ID, CaptureXPConfig::class)
+        reloadConfig()
         CobblemonEvents.POKEMON_CAPTURED.subscribe { event ->
             if (event.player.isInBattle()) handleCaptureInBattle(event) else handleCaptureOutOfBattle(event)
         }
+        CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
+            Commands.register(dispatcher)
+        }
+    }
+
+    fun reloadConfig() {
+        captureXPConfig = ConfigLoader.loadConfig(MOD_ID, CaptureXPConfig::class)
+        println(captureXPConfig.multiplier)
     }
 
     private fun handleCaptureInBattle(event: PokemonCapturedEvent) {
@@ -37,6 +48,7 @@ object CaptureXP : ModInitializer {
                 val xpShareOnly = !caughtBattleMon.facedOpponents.contains(opponentMon)
                 val xpShareOnlyModifier =
                     (if (xpShareOnly) Cobblemon.config.experienceShareMultiplier else 1).toDouble()
+                println(captureXPConfig.multiplier)
                 val experience = Cobblemon.experienceCalculator.calculate(
                     opponentMon, caughtBattleMon, captureXPConfig.multiplier * xpShareOnlyModifier
                 )
