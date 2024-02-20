@@ -7,21 +7,18 @@ import com.cobblemon.mod.common.api.pokemon.experience.SidemodExperienceSource
 import com.cobblemon.mod.common.api.tags.CobblemonItemTags
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon
 import com.cobblemon.mod.common.util.isInBattle
-import me.shedaniel.autoconfig.AutoConfig
-import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer
 import net.fabricmc.api.ModInitializer
 import us.timinc.mc.cobblemon.capturexp.config.CaptureXPConfig
+import us.timinc.mc.config.ConfigLoader
 
 object CaptureXP : ModInitializer {
+    @Suppress("MemberVisibilityCanBePrivate")
     const val MOD_ID = "capture_xp"
-    private lateinit var captureXPConfig: CaptureXPConfig
+    @Suppress("MemberVisibilityCanBePrivate")
+    lateinit var captureXPConfig: CaptureXPConfig
 
     override fun onInitialize() {
-        AutoConfig.register(
-            CaptureXPConfig::class.java, ::JanksonConfigSerializer
-        )
-        captureXPConfig = AutoConfig.getConfigHolder(CaptureXPConfig::class.java).config
-
+        captureXPConfig = ConfigLoader.loadConfig(MOD_ID, CaptureXPConfig::class)
         CobblemonEvents.POKEMON_CAPTURED.subscribe { event ->
             if (event.player.isInBattle()) handleCaptureInBattle(event) else handleCaptureOutOfBattle(event)
         }

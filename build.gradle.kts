@@ -44,7 +44,6 @@ dependencies {
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
-    modApi("me.shedaniel.cloth:cloth-config-fabric:8.3.103")
 }
 
 tasks.getByName<Test>("test") {
